@@ -16,7 +16,10 @@ const REASONS: string[] = [
   'Agrandas mi ego cuando me dices que soy lindo',
   'Tu pierna',
   'Quedarte despierta hasta tarde hablando conmigo',
-  'Me enseñas alemán'
+  'Me enseñas alemán',
+  'Juegas videojuegos conmigo',
+  'Eres graciosa',
+  'Me recuerdas que el amor aún es posible',
 ];
 
 type Answer = 'yes' | null;
