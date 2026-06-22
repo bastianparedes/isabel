@@ -12,14 +12,14 @@ const REASONS: string[] = [
   'Me relajas',
   'Puedo ser vulnerable contigo',
   'Tenemos los mismos hermanos',
-  'Haces que esté pendiente al teléfono esperando tus mensajes',
+  'Haces que esté pendiente del teléfono esperando tus mensajes',
   'Agrandas mi ego cuando me dices que soy lindo',
   'Tu pierna',
   'Quedarte despierta hasta tarde hablando conmigo',
   'Me enseñas alemán',
   'Juegas videojuegos conmigo',
   'Eres graciosa',
-  'Me recuerdas que el amor aún es posible',
+  'No duermo bien por las noches por pensar en ti',
 ];
 
 type Answer = 'yes' | null;
