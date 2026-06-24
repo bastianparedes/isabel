@@ -325,7 +325,7 @@ export default function Proposal(): JSX.Element {
               className="text-2xl md:text-3xl mb-2"
               style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#5c2a2e', fontStyle: 'italic' }}
             >
-              Isabel, ¿andar conmigo?
+              Isabel, ¿Quieres andar conmigo?
             </h2>
 
             <p style={{ color: '#b08968' }} className="text-sm mb-10">
