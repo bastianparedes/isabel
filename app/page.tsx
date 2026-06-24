@@ -12,37 +12,42 @@ const REASON_SECTIONS: ReasonSection[] = [
   {
     title: 'Quién eres',
     reasons: [
-      'Hablas 3 idiomas',
-      'Tu acento',
-      'Eres graciosa',
-      'Tu pierna',
+      'Eres muy fuerte, lo veo cada día que continúas con tus estudios a pesar de los malos profesores (los weas)',
+      'Hablas 3 idiomas, alemán, inglés y español',
+      'Tu acento, me encanta cómo dices la i y la u en inglés',
+      'Eres graciosa. Me has hecho reir un montón de veces con tus bromas e historias',
+      'Inimagináblemente hermosa. Adoro tus expresiones',
+      'Tu pierna 😍',
     ],
   },
   {
     title: 'Cómo me haces sentir',
     reasons: [
-      'Me siento muy cómodo hablando contigo',
-      'Me relajas',
-      'Puedo ser vulnerable contigo',
+      'Puedo ser vulnerable contigo y no me juzgas. Como cuando te conté de mi vasectomía y el problema a la sangre',
+      'Ansioso. Estoy atento a cuando me envías mensajes y me emociono cuando me escribes',
+      'Me relajas. Cuando hablo contigo olvido el resto del mundo y me concentro en lo que me dices',
+      'Me emocionas. Cuando me cuentas de tu vida, la universidad, tu familia, tu día a día me pongo muy feliz',
       'Agrandas mi ego cuando me dices que soy lindo',
     ],
   },
   {
-    title: 'Lo que compartimos',
+    title: 'Las cosas en común que tenemos',
     reasons: [
-      'Recuerdas las cosas que te digo',
       'Tenemos los mismos hermanos',
-      'Quedarte despierta hasta tarde hablando conmigo',
-      'Me enseñas alemán',
-      'Juegas videojuegos conmigo',
+      'También quieres explorar el mundo',
     ],
   },
   {
-    title: 'Sin filtro',
+    title: 'Lo que has hecho.',
     reasons: [
       'Me dijiste "estúpido"',
-      'Haces que esté pendiente del teléfono esperando tus mensajes',
-      'No duermo bien por las noches por pensar en ti',
+      'Me escribes un mensaje justo cuando yo estoy escribiendo y me fascina',
+      'Me demuestras interés.',
+      'Me enseñas alemán',
+      'Juegas videojuegos conmigo',
+      'Recuerdas las cosas que te digo',
+      'Quedarte despierta hasta tarde hablando conmigo',
+      'Aprendes no solo mi idioma, sino también mi dialecto chileno 🥰. Esto me hace sentir especial para ti',
     ],
   },
 ];
@@ -55,7 +60,7 @@ type Position = {
 };
 
 export default function Proposal(): JSX.Element {
-  const propose = false;
+  const propose = true;
   const [noButtonPosition, setNoButtonPosition] = useState<Position>({
     x: 0,
     y: 0,
@@ -124,7 +129,7 @@ export default function Proposal(): JSX.Element {
           fontFamily: "'Lora', Georgia, serif",
         }}
       >
-        <div className="text-center max-w-md">
+        <div className="text-center">
           <div
             className="mx-auto mb-8 flex items-center justify-center"
             style={{
@@ -136,7 +141,7 @@ export default function Proposal(): JSX.Element {
             }}
           >
             <span style={{ color: '#f3d9b8', fontSize: '26px', fontFamily: "'Playfair Display', serif" }}>
-              &amp;
+              II
             </span>
           </div>
 
@@ -152,7 +157,7 @@ export default function Proposal(): JSX.Element {
           </h1>
 
           <p style={{ color: '#8a5a52', fontSize: '1.2rem', letterSpacing: '0.02em' }}>
-            Gracias por hacerme la persona más feliz, Isabel.
+            Gracias por hacerme más feliz, Isabel.
           </p>
         </div>
       </div>
@@ -320,7 +325,7 @@ export default function Proposal(): JSX.Element {
               className="text-2xl md:text-3xl mb-2"
               style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#5c2a2e', fontStyle: 'italic' }}
             >
-              Isabel, ¿quieres ser mi novia?
+              Isabel, ¿andar conmigo?
             </h2>
 
             <p style={{ color: '#b08968' }} className="text-sm mb-10">
