@@ -458,7 +458,7 @@ export default function App(): JSX.Element {
             }}
           />
 
-          {true && (
+          {unlocked && (
             <div
               className="unfold mt-6 rounded-2xl border px-6 py-6 text-left"
               style={{ borderColor: "#D4A857", background: "rgba(74,20,32,0.55)" }}
