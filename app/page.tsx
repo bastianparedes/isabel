@@ -1,376 +1,454 @@
 'use client';
 
-import { useState, useRef } from "react";
-import { JSX } from "react/jsx-runtime";
+import { useState, useEffect, useRef, ChangeEvent, KeyboardEvent } from "react";
+import { Heart, X, Plus } from "lucide-react";
 
-type ReasonSection = {
-  title: string;
-  reasons: string[];
+interface Palette {
+  bg: string;
+  bg2: string;
+  gold: string;
+  goldSoft: string;
+  rose: string;
+  cream: string;
+  lavender: string;
+}
+
+const palette: Palette = {
+  bg: "#150C1F",
+  bg2: "#241531",
+  gold: "#E7B95C",
+  goldSoft: "rgba(231,185,92,0.28)",
+  rose: "#D8768A",
+  cream: "#F3E9DC",
+  lavender: "#9C8FAE",
 };
 
-const REASON_SECTIONS: ReasonSection[] = [
-  {
-    title: 'Quién eres',
-    reasons: [
-      'Eres muy fuerte, lo veo cada día que continúas con tus estudios a pesar de los malos profesores (los weas)',
-      'Hablas 3 idiomas, alemán, inglés y español',
-      'Tu acento, me encanta cómo dices la i y la u en inglés',
-      'Eres graciosa. Me has hecho reir un montón de veces con tus bromas e historias',
-      'Inimagináblemente hermosa. Adoro tus expresiones',
-      'Tu pierna 😍',
-    ],
-  },
-  {
-    title: 'Cómo me haces sentir',
-    reasons: [
-      'Puedo ser vulnerable contigo y no me juzgas. Como cuando te conté de mi vasectomía y el problema a la sangre',
-      'Ansioso. Estoy atento a cuando me envías mensajes y me emociono cuando me escribes',
-      'Me relajas. Cuando hablo contigo olvido el resto del mundo y me concentro en lo que me dices',
-      'Me emocionas. Cuando me cuentas de tu vida, la universidad, tu familia, tu día a día me pongo muy feliz',
-      'Agrandas mi ego cuando me dices que soy lindo',
-    ],
-  },
-  {
-    title: 'Las cosas en común que tenemos',
-    reasons: [
-      'Tenemos los mismos hermanos',
-      'También quieres explorar el mundo',
-    ],
-  },
-  {
-    title: 'Lo que has hecho.',
-    reasons: [
-      'Me dijiste "estúpido"',
-      'Me escribes un mensaje justo cuando yo estoy escribiendo y me fascina',
-      'Me demuestras interés.',
-      'Me enseñas alemán',
-      'Juegas videojuegos conmigo',
-      'Recuerdas las cosas que te digo',
-      'Quedarte despierta hasta tarde hablando conmigo',
-      'Aprendes no solo mi idioma, sino también mi dialecto chileno 🥰. Esto me hace sentir especial para ti',
-    ],
-  },
-];
+interface CountdownState {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+  done: boolean;
+}
 
-type Answer = 'yes' | null;
+interface Star {
+  id: number;
+  top: number;
+  left: number;
+  size: number;
+  delay: number;
+  duration: number;
+  gold: boolean;
+}
 
-type Position = {
-  x: number;
-  y: number;
-};
+interface CountdownBlock {
+  value: number;
+  label: string;
+}
 
-export default function Proposal(): JSX.Element {
-  const propose = true;
-  const [noButtonPosition, setNoButtonPosition] = useState<Position>({
-    x: 0,
-    y: 0,
-  });
+function nextDecemberFirst(): Date {
+  const now = new Date();
+  const year =
+    now.getMonth() === 11 && now.getDate() > 1
+      ? now.getFullYear() + 1
+      : now.getFullYear();
 
-  const [attempts, setAttempts] = useState<number>(0);
-  const [answer, setAnswer] = useState<Answer>(null);
+  const d = new Date(year, 11, 1, 0, 0, 0);
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const noButtonRef = useRef<HTMLButtonElement | null>(null);
-
-  const moveButtonAway = (
-    event: React.MouseEvent<HTMLButtonElement>
-  ): void => {
-    const container = containerRef.current;
-    const button = noButtonRef.current;
-
-    if (!container || !button) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const buttonRect = button.getBoundingClientRect();
-
-    const maxX = Math.max(0, containerRect.width - buttonRect.width);
-    const maxY = Math.max(0, containerRect.height - buttonRect.height);
-
-    const cursorX = event.clientX - containerRect.left;
-    const cursorY = event.clientY - containerRect.top;
-
-    const minimumDistance =
-      Math.max(buttonRect.width, buttonRect.height) * 1.3;
-
-    let newX: number;
-    let newY: number;
-    let searchAttempts = 0;
-
-    do {
-      newX = Math.random() * maxX;
-      newY = Math.random() * maxY;
-
-      const centerX = newX + buttonRect.width / 2;
-      const centerY = newY + buttonRect.height / 2;
-
-      const distance = Math.hypot(
-        centerX - cursorX,
-        centerY - cursorY
-      );
-
-      searchAttempts++;
-
-      if (distance >= minimumDistance || searchAttempts > 30) {
-        break;
-      }
-    } while (true);
-
-    setNoButtonPosition({ x: newX!, y: newY! });
-    setAttempts((current) => current + 1);
-  };
-
-  if (answer === 'yes') {
-    return (
-      <div
-        className="min-h-screen w-full flex items-center justify-center px-6"
-        style={{
-          background:
-            'radial-gradient(circle at 50% 30%, #fff9f0 0%, #f3e4d8 55%, #e8d2c2 100%)',
-          fontFamily: "'Lora', Georgia, serif",
-        }}
-      >
-        <div className="text-center">
-          <div
-            className="mx-auto mb-8 flex items-center justify-center"
-            style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 30%, #c4374a, #7a1d2c)',
-              boxShadow: '0 6px 18px rgba(122, 29, 44, 0.35)',
-            }}
-          >
-            <span style={{ color: '#f3d9b8', fontSize: '26px', fontFamily: "'Playfair Display', serif" }}>
-              II
-            </span>
-          </div>
-
-          <h1
-            className="text-4xl md:text-5xl mb-4"
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              color: '#5c2a2e',
-              fontStyle: 'italic',
-            }}
-          >
-            Sabía que dirías que sí
-          </h1>
-
-          <p style={{ color: '#8a5a52', fontSize: '1.2rem', letterSpacing: '0.02em' }}>
-            Gracias por hacerme más feliz, Isabel.
-          </p>
-        </div>
-      </div>
-    );
+  if (d.getTime() < now.getTime()) {
+    d.setFullYear(d.getFullYear() + 1);
   }
+
+  return d;
+}
+
+function formatDateEs(date: Date): string {
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function useCountdown(target: Date): CountdownState {
+  const [now, setNow] = useState(Date.now);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, []);
+
+  const remaining = Math.max(0, target.getTime() - now);
+  const totalSeconds = Math.floor(remaining / 1000);
+
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+    done: remaining <= 0,
+  };
+}
+
+export default function App() {
+  const [targetDate, setTargetDate] = useState<Date>(nextDecemberFirst);
+  const countdown = useCountdown(targetDate);
+
+  const [reasons, setReasons] = useState<string[]>([
+    "Porque tu risa es mi lugar favorito del mundo.",
+    "Porque contigo hasta los días grises se sienten más ligeros.",
+    "Porque me escuchas de verdad, no solo esperas tu turno para hablar.",
+        "Porque construimos, entre los dos, algo que solo nosotros entendemos.",
+    "Porque me haces querer ser una mejor persona, sin pedírmelo.",
+    "Porque en los planes pequeños también encuentro los mejores recuerdos.",
+    "Porque tu calma me sostiene cuando el mundo se acelera.",
+    "Porque elegirte no ha dejado de sentirse como la decisión correcta.",
+  ]);
+
+  const [newReason, setNewReason] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Generar las estrellas una sola vez (compatible con React 19)
+  const [stars] = useState<Star[]>(() =>
+    Array.from({ length: 55 }, (_, i) => ({
+      id: i,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+      delay: Math.random() * 6,
+      duration: Math.random() * 3 + 3,
+      gold: Math.random() > 0.75,
+    }))
+  );
+
+  function addReason(): void {
+    const text = newReason.trim();
+    if (!text) return;
+
+    setReasons((r) => [...r, text]);
+    setNewReason("");
+    inputRef.current?.focus();
+  }
+
+  function removeReason(index: number): void {
+    setReasons((r) => r.filter((_, i) => i !== index));
+  }
+
+  function handleDateChange(
+    e: ChangeEvent<HTMLInputElement>
+  ): void {
+    const [y, m, d] = e.target.value
+      .split("-")
+      .map(Number);
+
+    if (!y || !m || !d) return;
+
+    setTargetDate(new Date(y, m - 1, d));
+  }
+
+  function handleReasonKeyDown(
+    e: KeyboardEvent<HTMLInputElement>
+  ): void {
+    if (e.key === "Enter") {
+      addReason();
+    }
+  }
+
+  const dateInputValue =
+    `${targetDate.getFullYear()}-` +
+    `${pad(targetDate.getMonth() + 1)}-` +
+    `${pad(targetDate.getDate())}`;
+
+  const blocks: CountdownBlock[] = [
+    {
+      value: countdown.days,
+      label: "días",
+    },
+    {
+      value: countdown.hours,
+      label: "horas",
+    },
+    {
+      value: countdown.minutes,
+      label: "minutos",
+    },
+    {
+      value: countdown.seconds,
+      label: "segundos",
+    },
+  ];
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center py-16 px-4"
+      className="min-h-screen w-full relative overflow-hidden"
       style={{
-        background: '#ece1d3',
-        fontFamily: "'Lora', Georgia, serif",
+        background: `radial-gradient(
+          ellipse at 50% -10%,
+          ${palette.bg2} 0%,
+          ${palette.bg} 55%
+        )`,
+        color: palette.cream,
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap');
 
-        .love-letter {
-          background-color: #fbf6ec;
-          background-image:
-            radial-gradient(circle at 18% 22%, rgba(155, 44, 62, 0.035), transparent 38%),
-            radial-gradient(circle at 82% 78%, rgba(201, 160, 92, 0.05), transparent 42%);
-          position: relative;
-        }
-        .love-letter::before {
-          content: '';
-          position: absolute;
-          inset: 14px;
-          border: 1px solid rgba(155, 44, 62, 0.18);
-          pointer-events: none;
-        }
-        .seal-wrap {
-          opacity: 0;
-          transform: translateY(-14px) scale(0.85);
-          animation: drop-seal 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
-        }
-        @keyframes drop-seal {
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .ink-line {
-          opacity: 0;
-          transform: translateY(8px);
-          animation: write-in 0.6s ease-out forwards;
-        }
-        @keyframes write-in {
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .seal-wrap, .ink-line { animation: none !important; opacity: 1 !important; transform: none !important; }
-        }
-        .section-mark {
+        .font-display {
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-style: italic;
+        }
+
+        .font-body {
+          font-family: 'Jost', sans-serif;
+        .tabular {
+          font-variant-numeric: tabular-nums;
+        }
+
+        @keyframes twinkle {
+          0%,
+          100% {
+            opacity: .15;
+          }
+
+          50% {
+            opacity: 1;
+          }
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          filter: invert(0.8) sepia(1) saturate(3) hue-rotate(0deg);
+          cursor: pointer;
         }
       `}</style>
 
-      <div className="w-full max-w-2xl">
-        <div className="love-letter rounded-sm shadow-xl px-8 md:px-16 py-14 md:py-20">
+      {/* campo de estrellas */}
+      <div className="absolute inset-0 pointer-events-none">
+        {stars.map((s) => (
+          <div
+            key={s.id}
+            className="absolute rounded-full"
+            style={{
+              top: `${s.top}%`,
+              left: `${s.left}%`,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              backgroundColor: s.gold
+                ? palette.gold
+                : palette.cream,
+              animation: `twinkle ${s.duration}s ease-in-out ${s.delay}s infinite`,
+            }}
+          />
+        ))}
+      </div>
 
-          <header className="text-center mb-14 relative">
-            <div className="seal-wrap mx-auto mb-7 flex items-center justify-center" style={{ width: '58px', height: '58px' }}>
-              <div
-                className="w-full h-full rounded-full flex items-center justify-center"
-                style={{
-                  background: 'radial-gradient(circle at 32% 28%, #c4374a, #7a1d2c 70%)',
-                  boxShadow: '0 4px 10px rgba(122, 29, 44, 0.3), inset 0 1px 2px rgba(255,255,255,0.25)',
-                }}
-              >
-                <span style={{ color: '#f3d9b8', fontSize: '22px', fontFamily: "'Playfair Display', serif" }}>
-                  I
-                </span>
-              </div>
-            </div>
+      <div className="relative z-10 max-w-3xl mx-auto px-6 py-20 md:py-28 font-body">
 
-            <p
-              className="text-xs uppercase mb-4"
-              style={{ color: '#b08968', letterSpacing: '0.3em' }}
+        {/* ---------- CUENTA REGRESIVA ---------- */}
+
+        <header className="text-center mb-16 md:mb-24">
+
+          <p
+            className="text-xs md:text-sm tracking-[0.35em] uppercase mb-5"
+            style={{ color: palette.gold }}
+          >
+            Cuenta regresiva
+          </p>
+
+          <h1
+            className="font-display italic text-3xl md:text-5xl leading-tight mb-3"
+            style={{ color: palette.cream }}
+          >
+            Faltan para el {formatDateEs(targetDate)}
+          </h1>
+
+          <div className="flex items-center justify-center gap-2 mt-6 mb-10">
+            <span
+              className="text-xs uppercase tracking-widest"
+              style={{ color: palette.lavender }}
             >
-              Para Isabel
-            </p>
+              cambiar fecha
+            </span>
 
-            <h1
-              className="text-4xl md:text-5xl leading-tight"
+            <input
+              type="date"
+              value={dateInputValue}
+              onChange={handleDateChange}
+              className="bg-transparent text-sm px-2 py-1 outline-none border-b"
               style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                color: '#5c2a2e',
-                fontStyle: 'italic',
-                fontWeight: 600,
+                borderColor: palette.goldSoft,
+                color: palette.cream,
+                colorScheme: "dark",
               }}
-            >
-              Algunas razones por las que me gustas
-            </h1>
-
-            <div className="flex items-center justify-center gap-3 mt-6">
-              <span style={{ height: '1px', width: '48px', background: 'rgba(155, 44, 62, 0.3)' }} />
-              <span className="section-mark text-xl" style={{ color: '#c9a05c' }}>♥</span>
-              <span style={{ height: '1px', width: '48px', background: 'rgba(155, 44, 62, 0.3)' }} />
-            </div>
-          </header>
-
-          <div className="space-y-12">
-            {REASON_SECTIONS.map((section, sectionIndex) => (
-              <section key={sectionIndex}>
-                <h2
-                  className="section-mark text-2xl mb-5 flex items-center gap-3"
-                  style={{ color: '#9b2c3e' }}
-                >
-                  <span aria-hidden="true" style={{ color: '#c9a05c', fontSize: '1rem' }}>✦</span>
-                  {section.title}
-                </h2>
-
-                <ul className="space-y-3.5">
-                  {section.reasons.map((reason, reasonIndex) => {
-                    return (
-                      <li
-                        key={reasonIndex}
-                        className="ink-line flex items-start gap-3 pl-1"
-                        style={{
-                          borderBottom: '1px solid rgba(155, 44, 62, 0.12)',
-                          paddingBottom: '0.85rem',
-                          animationDelay: `${0.15 + reasonIndex * 0.05}s`,
-                        }}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="mt-2 shrink-0"
-                          style={{
-                            width: '5px',
-                            height: '5px',
-                            borderRadius: '50%',
-                            background: '#c9a05c',
-                          }}
-                        />
-                        <p
-                          className="text-base md:text-lg leading-relaxed"
-                          style={{ color: '#5c3a3a' }}
-                        >
-                          {reason}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            ))}
+            />
           </div>
 
-          <div className="mt-16 text-center">
+          {countdown.done ? (
             <p
-              className="section-mark text-xl"
-              style={{ color: '#9b2c3e' }}
+              className="font-display italic text-2xl"
+              style={{ color: palette.rose }}
             >
-              y muchas más que aún no caben aquí.
+              El día ha llegado.
             </p>
-          </div>
+          ) : (
+            <div className="flex items-center justify-center gap-3 md:gap-6 flex-wrap">
+              {blocks.map((b, i) => (
+                <div
+                  key={b.label}
+                  className="flex items-center gap-3 md:gap-6"
+                >
+                  <div className="flex flex-col items-center min-w-17.5 md:min-w-22.5">
+                    <span
+                      className="font-display tabular text-5xl md:text-6xl leading-none"
+                      style={{ color: palette.gold }}
+                    >
+                      {pad(b.value)}
+                    </span>
+
+                    <span
+                      className="text-[11px] md:text-xs uppercase tracking-[0.25em] mt-2"
+                      style={{ color: palette.lavender }}
+                    >
+                      {b.label}
+                    </span>
+                  </div>
+                                  {i < blocks.length - 1 && (
+                    <span
+                      className="font-display text-3xl md:text-4xl -mt-4"
+                      style={{ color: palette.goldSoft }}
+                    >
+                      :
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </header>
+
+        {/* separador con corazón */}
+        <div className="flex items-center gap-4 mb-16 md:mb-20">
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: palette.goldSoft }}
+          />
+          <Heart
+            size={16}
+            style={{ color: palette.rose }}
+            fill={palette.rose}
+          />
+          <div
+            className="flex-1 h-px"
+            style={{ backgroundColor: palette.goldSoft }}
+          />
         </div>
 
-        {propose && (
-          <div
-            ref={containerRef}
-            className="relative rounded-sm shadow-xl border px-6 py-10 md:py-14 text-center overflow-hidden mt-8"
-            style={{ minHeight: '260px', background: '#fbf6ec', borderColor: 'rgba(155, 44, 62, 0.18)' }}
-          >
+        {/* ---------- RAZONES ---------- */}
+        <section>
+          <div className="text-center mb-12">
             <h2
-              className="text-2xl md:text-3xl mb-2"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif", color: '#5c2a2e', fontStyle: 'italic' }}
+              className="font-display italic text-3xl md:text-4xl mb-2"
+              style={{ color: palette.cream }}
             >
-              Isabel, ¿Quieres andar conmigo?
+              Razones para estar contigo
             </h2>
 
-            <p style={{ color: '#b08968' }} className="text-sm mb-10">
-              Solo tienes que elegir una opción.
+            <p
+              className="text-sm"
+              style={{ color: palette.lavender }}
+            >
+              una lista que sigue creciendo, {reasons.length}{" "}
+              {reasons.length === 1 ? "razón" : "razones"} por ahora
             </p>
-
-            <div className="flex items-center justify-center gap-6">
-              <button
-                onClick={() => setAnswer('yes')}
-                type="button"
-                className="px-8 py-3 rounded-full text-white font-medium text-lg shadow-md active:scale-95 transition-all duration-150"
-                style={{ background: '#9b2c3e' }}
-              >
-                Sí
-              </button>
-
-              <button
-                ref={noButtonRef}
-                type="button"
-                onMouseEnter={moveButtonAway}
-                onClick={moveButtonAway}
-                style={
-                  attempts > 0
-                    ? {
-                        left: `${noButtonPosition.x}px`,
-                        position: 'absolute' as const,
-                        top: `${noButtonPosition.y}px`,
-                        transition: 'left 0.25s ease, top 0.25s ease',
-                        background: '#fff',
-                        color: '#9b2c3e',
-                        borderColor: 'rgba(155, 44, 62, 0.3)',
-                      }
-                    : {
-                        background: '#fff',
-                        color: '#9b2c3e',
-                        borderColor: 'rgba(155, 44, 62, 0.3)',
-                      }
-                }
-                className="px-8 py-3 rounded-full font-medium text-lg border shadow-sm hover:shadow-md"
-              >
-                No
-              </button>
-            </div>
           </div>
-        )}
+
+          <ul className="space-y-0 mb-8">
+            {reasons.map((reason, i) => (
+              <li
+                key={i}
+                className="group flex items-start gap-4 py-4 border-b"
+                style={{
+                  borderColor: "rgba(231,185,92,0.12)",
+                }}
+              >
+                <Heart
+                  size={14}
+                  className="mt-1.5 shrink-0"
+                  style={{ color: palette.rose }}
+                  fill={palette.rose}
+                />
+
+                <p
+                  className="flex-1 font-display italic text-lg md:text-xl leading-relaxed"
+                  style={{ color: palette.cream }}
+                >
+                  {reason}
+                </p>
+
+                <button
+                  onClick={() => removeReason(i)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1.5"
+                  aria-label="Eliminar razón"
+                >
+                  <X
+                    size={15}
+                    style={{ color: palette.lavender }}
+                  />
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* añadir nueva razón */}
+          <div className="flex items-center gap-3 pt-2">
+            <Plus
+              size={16}
+              className="shrink-0"
+              style={{ color: palette.gold }}
+            />
+
+            <input
+              ref={inputRef}
+              type="text"
+              value={newReason}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setNewReason(e.target.value)
+              }
+              onKeyDown={handleReasonKeyDown}
+              placeholder="Escribe una razón más..."
+              className="flex-1 bg-transparent outline-none text-base font-body py-2 border-b"
+              style={{
+                borderColor: palette.goldSoft,
+                color: palette.cream,
+              }}
+            />
+                    <button
+              onClick={addReason}
+              className="text-xs uppercase tracking-widest px-4 py-2 border rounded-full transition-colors"
+              style={{
+                borderColor: palette.gold,
+                color: palette.gold,
+              }}
+            >
+              Añadir
+            </button>
+          </div>
+        </section>
+
+        {/* ---------- FOOTER ---------- */}
+        <footer className="text-center mt-20 md:mt-28">
+          <p
+            className="font-display italic text-sm"
+            style={{ color: palette.lavender }}
+          >
+            hecho con cariño, hoy {formatDateEs(new Date())}
+          </p>
+        </footer>
       </div>
     </div>
   );
