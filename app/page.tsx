@@ -264,7 +264,7 @@ export default function App() {
             className="font-display italic text-3xl md:text-5xl leading-tight mb-3"
             style={{ color: palette.cream }}
           >
-            Faltan para el {formatDateEs(targetDate)}
+            Falta para el {formatDateEs(targetDate)}
           </h1>
 
           <div className="flex items-center justify-center gap-2 mt-6 mb-10">
