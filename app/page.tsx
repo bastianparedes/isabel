@@ -1,6 +1,8 @@
 'use client';
 
-import React, { JSX, useEffect, useMemo, useState } from "react";
+import { JSX, useEffect, useMemo, useState } from "react";
+import picture from './picture.jpg';
+import Image from "next/image";
 
 /**
  * ────────────────────────────────────────────────────────────────
@@ -17,9 +19,24 @@ const START_DATE = new Date("2026-06-10T00:00:00");
 // ✏️ EDIT HERE — secret keyword (checked case-insensitively, as a substring)
 const SECRET_KEYWORD = "Bastián Gabriel Paredes Padget";
 
-// ✏️ EDIT HERE — message revealed once the right word is typed
+// ✏️ EDIT HERE — birth date lock (day / month / year, checked as numbers)
+const SECRET_BIRTH_DAY = 30;
+const SECRET_BIRTH_MONTH = 4; // April
+const SECRET_BIRTH_YEAR = 1995;
+
+const MONTHS_ES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+const DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => i + 1);
+const YEAR_OPTIONS = Array.from({ length: 2015 - 1960 + 1 }, (_, i) => 1960 + i);
+
+// ✏️ EDIT HERE — cat's name lock (checked case-insensitively, as a substring)
+const SECRET_CAT_NAME = "Shiva";
+
+// ✏️ EDIT HERE — message revealed once all three answers are correct
 const SECRET_MESSAGE =
-  "When we finally meet in person, I'll ask you to be my girlfriend and everybody will know you are my \"Polola\", because you are the one I choose, Isabel.";
+  "When we finally meet in person, I'll ask you to be my girlfriend and everybody will know you are my Polola, because you are the one I choose, Isabel.";
 
 // ✏️ EDIT HERE — the real itinerary toward being reunited
 const ITINERARY = [
@@ -141,10 +158,34 @@ export default function App(): JSX.Element {
   };
 
   const [nameInput, setNameInput] = useState("");
-  const unlocked = useMemo(
+  const [dayInput, setDayInput] = useState("");
+  const [monthInput, setMonthInput] = useState("");
+  const [yearInput, setYearInput] = useState("");
+  const [catInput, setCatInput] = useState("");
+
+  const nameCorrect = useMemo(
     () => nameInput.trim().toLowerCase().includes(SECRET_KEYWORD.toLowerCase()),
     [nameInput]
   );
+  const birthdateCorrect = useMemo(
+    () =>
+      Number(dayInput) === SECRET_BIRTH_DAY &&
+      Number(monthInput) === SECRET_BIRTH_MONTH &&
+      Number(yearInput) === SECRET_BIRTH_YEAR,
+    [dayInput, monthInput, yearInput]
+  );
+  const catCorrect = useMemo(
+    () => catInput.trim().toLowerCase().includes(SECRET_CAT_NAME.toLowerCase()),
+    [catInput]
+  );
+
+  const unlocked = nameCorrect && birthdateCorrect && catCorrect;
+
+  const fieldStyle = (correct: boolean) => ({
+    borderColor: correct ? "#D4A857" : "#6B2A38",
+    color: "#F6E6DE",
+    fontFamily: "'Cormorant Garamond', serif",
+  });
 
   return (
     <div
@@ -437,26 +478,110 @@ export default function App(): JSX.Element {
             A secret letter
           </h2>
           <p className="mb-8 text-base" style={{ color: "#D9B8AE" }}>
-            to open it, type my full name.
+            three keys open it: my full name, my birth date, and my cat's name.
           </p>
 
-          <label htmlFor="secret-name" className="sr-only">
-            Type my full name
-          </label>
-          <input
-            id="secret-name"
-            type="text"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            placeholder="my full name..."
-            autoComplete="off"
-            className="w-full rounded-full border bg-transparent px-5 py-3 text-center text-base outline-none"
-            style={{
-              borderColor: unlocked ? "#D4A857" : "#6B2A38",
-              color: "#F6E6DE",
-              fontFamily: "'Cormorant Garamond', serif",
-            }}
-          />
+          <div className="space-y-3">
+            <div className="text-left">
+              <label htmlFor="secret-name" className="sr-only">
+                Type my full name
+              </label>
+              <input
+                id="secret-name"
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="my full name..."
+                autoComplete="off"
+                className="w-full rounded-full border bg-transparent px-5 py-3 text-center text-base outline-none"
+                style={fieldStyle(nameCorrect)}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label htmlFor="secret-day" className="sr-only">
+                  Day I was born
+                </label>
+                <select
+                  id="secret-day"
+                  value={dayInput}
+                  onChange={(e) => setDayInput(e.target.value)}
+                  className="w-full appearance-none rounded-full border bg-transparent px-3 py-3 text-center text-base outline-none"
+                  style={{ ...fieldStyle(birthdateCorrect), colorScheme: "dark" }}
+                >
+                  <option value="" style={{ color: "#33101C" }}>
+                    Día
+                  </option>
+                  {DAY_OPTIONS.map((d) => (
+                    <option key={d} value={d} style={{ color: "#33101C" }}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="secret-month" className="sr-only">
+                  Month I was born
+                </label>
+                <select
+                  id="secret-month"
+                  value={monthInput}
+                  onChange={(e) => setMonthInput(e.target.value)}
+                  className="w-full appearance-none rounded-full border bg-transparent px-3 py-3 text-center text-base outline-none"
+                  style={{ ...fieldStyle(birthdateCorrect), colorScheme: "dark" }}
+                >
+                  <option value="" style={{ color: "#33101C" }}>
+                    Mes
+                  </option>
+                  {MONTHS_ES.map((m, i) => (
+                    <option key={m} value={i + 1} style={{ color: "#33101C" }}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="secret-year" className="sr-only">
+                  Year I was born
+                </label>
+                <select
+                  id="secret-year"
+                  value={yearInput}
+                  onChange={(e) => setYearInput(e.target.value)}
+                  className="w-full appearance-none rounded-full border bg-transparent px-3 py-3 text-center text-base outline-none"
+                  style={{ ...fieldStyle(birthdateCorrect), colorScheme: "dark" }}
+                >
+                  <option value="" style={{ color: "#33101C" }}>
+                    Año
+                  </option>
+                  {YEAR_OPTIONS.map((y) => (
+                    <option key={y} value={y} style={{ color: "#33101C" }}>
+                      {y}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="text-left">
+              <label htmlFor="secret-cat" className="sr-only">
+                Type my cat's name
+              </label>
+              <input
+                id="secret-cat"
+                type="text"
+                value={catInput}
+                onChange={(e) => setCatInput(e.target.value)}
+                placeholder="my cat's name..."
+                autoComplete="off"
+                className="w-full rounded-full border bg-transparent px-5 py-3 text-center text-base outline-none"
+                style={fieldStyle(catCorrect)}
+              />
+            </div>
+          </div>
 
           {unlocked && (
             <div
@@ -472,6 +597,7 @@ export default function App(): JSX.Element {
               <p className="text-base leading-relaxed sm:text-lg" style={{ color: "#F6E6DE" }}>
                 {SECRET_MESSAGE}
               </p>
+              <Image src={picture} alt="Picture" />
             </div>
           )}
         </div>
