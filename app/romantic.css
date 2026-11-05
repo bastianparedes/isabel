@@ -1,0 +1,633 @@
+:root {
+  --desk: #e9d8c4;
+  --paper: #fbf4e6;
+  --ink: #4b2f2a;
+  --soft: #8c6a5d;
+  --red: #b3243b;
+  --blue: #27457a;
+  --line: #d9c7ac;
+  --seal: #9b1c31;
+  box-sizing: border-box;
+  color-scheme: light;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #1a1417;
+    --paper: #2a2024;
+    --ink: #f0e0d0;
+    --soft: #bfa394;
+    --red: #e0566c;
+    --blue: #7fa0dc;
+    --line: #4a3a3f;
+    --seal: #d04560;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --desk: #1a1417;
+  --paper: #2a2024;
+  --ink: #f0e0d0;
+  --soft: #bfa394;
+  --red: #e0566c;
+  --blue: #7fa0dc;
+  --line: #4a3a3f;
+  --seal: #d04560;
+  color-scheme: dark;
+}
+
+html {
+  min-height: 100%;
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.2rem;
+}
+
+.postal-sheet {
+  position: relative;
+  border: 14px solid transparent;
+  border-image: repeating-linear-gradient(
+      135deg,
+      var(--red) 0 16px,
+      var(--paper) 16px 28px,
+      var(--blue) 28px 44px,
+      var(--paper) 44px 56px
+    )
+    14;
+  background: var(--paper);
+  box-shadow: 0 14px 40px rgb(0 0 0 / 25%);
+}
+
+.airmail-label {
+  padding: 6px 12px;
+  transform: rotate(-3deg);
+  border: 2px solid var(--blue);
+  color: var(--blue);
+  font-size: 1rem;
+  font-variant: small-caps;
+  letter-spacing: 0.18em;
+}
+
+.postage-stamp {
+  width: 92px;
+  padding: 8px;
+  transform: rotate(3deg);
+  border: 2px dashed var(--red);
+  color: var(--red);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.postage-stamp b {
+  display: block;
+  font-size: 2rem;
+}
+
+.postal-title,
+.letter-greeting,
+.letter-signature,
+.postal-heading,
+.postal-footer {
+  font-family: "Great Vibes", cursive, serif;
+  font-weight: 400;
+}
+
+.postal-title {
+  margin-bottom: 4px;
+  color: var(--red);
+  font-size: clamp(2.8rem, 10vw, 4.6rem);
+}
+
+.postal-route,
+.section-caption {
+  color: var(--soft);
+}
+
+.postal-route {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.country-decorations {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 34px;
+}
+
+.country-flag {
+  display: block;
+  width: 58px;
+  height: 40px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 0 3px 8px rgb(75 47 42 / 16%);
+}
+
+.chile-flag {
+  transform: rotate(-5deg);
+}
+
+.germany-flag {
+  transform: rotate(5deg);
+}
+
+.country-flag svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.country-route {
+  position: relative;
+  display: flex;
+  width: clamp(64px, 16vw, 130px);
+  align-items: center;
+  justify-content: center;
+  border-top: 2px dashed var(--line);
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+.country-route span {
+  position: absolute;
+  top: 50%;
+  padding: 0 7px;
+  background: var(--paper);
+  transform: translateY(-50%);
+}
+
+.music-control {
+  margin: 32px auto 0;
+  text-align: center;
+}
+
+.music-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 22px;
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  background: var(--red);
+  box-shadow: 0 4px 12px rgb(75 47 42 / 18%);
+  color: #fff7f2;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.music-button:hover {
+  transform: translateY(-1px);
+  background: var(--paper);
+  color: var(--red);
+}
+
+.music-button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+
+.music-button span {
+  font-size: 0.9rem;
+}
+
+.audio-tools {
+  display: grid;
+  max-width: 520px;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  align-items: center;
+  gap: 18px;
+  margin: 14px auto 0;
+  text-align: left;
+}
+
+.audio-seek,
+.audio-volume {
+  min-width: 0;
+}
+
+.audio-seek input,
+.audio-volume input {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.audio-seek input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.audio-time {
+  display: flex;
+  justify-content: space-between;
+  color: var(--soft);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.audio-volume {
+  display: grid;
+  grid-template-columns: auto minmax(50px, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: var(--soft);
+  font-size: 1rem;
+}
+
+.music-error {
+  margin: 10px 0 0;
+  color: var(--red);
+  font-size: 1rem;
+}
+
+.surprise-gate {
+  max-width: 760px;
+  margin: 54px auto 0;
+  padding: 30px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 88%, var(--desk));
+  box-shadow: 0 6px 18px rgb(75 47 42 / 10%);
+}
+
+.surprise-description {
+  margin-bottom: 24px;
+}
+
+.question-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.question-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+}
+
+.question-field:first-child,
+.birthdate-field {
+  grid-column: 1 / -1;
+}
+
+.question-field > label,
+.question-field legend {
+  padding: 0;
+  color: var(--soft);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.question-field input,
+.question-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.question-field input::placeholder {
+  color: var(--soft);
+  opacity: 0.8;
+}
+
+.question-field input:focus-visible,
+.question-field select:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.birthdate-field {
+  gap: 7px;
+}
+
+.birthdate-selects {
+  display: grid;
+  grid-template-columns: 0.75fr 1.25fr 1fr;
+  gap: 8px;
+}
+
+.birthdate-selects label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--soft);
+  font-size: 0.9rem;
+}
+
+.surprise-locked,
+.surprise-success {
+  margin: 22px 0 0;
+  color: var(--soft);
+  font-size: 1.05rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.surprise-success {
+  color: var(--red);
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.surprise-gate .music-control {
+  margin-top: 16px;
+}
+
+.letter {
+  padding: 0 2px;
+  font-size: 1.28rem;
+  line-height: 1.9;
+}
+
+.letter p {
+  margin: 0 0 34px;
+}
+
+.letter .letter-greeting {
+  color: var(--red);
+  font-size: 2.1rem;
+  line-height: 1.4;
+}
+
+.letter .letter-signature {
+  margin-bottom: 0;
+  color: var(--red);
+  font-size: 2rem;
+  text-align: right;
+}
+
+.wax-seal {
+  display: flex;
+  width: 74px;
+  height: 74px;
+  align-items: center;
+  justify-content: center;
+  margin: 8px auto 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d9475f, var(--seal));
+  box-shadow:
+    0 4px 10px rgb(0 0 0 / 35%),
+    inset 0 0 0 5px rgb(0 0 0 / 12%);
+  color: #f7d9de;
+  font-size: 2rem;
+}
+
+.postal-heading {
+  margin: 0;
+  color: var(--red);
+  font-size: 2.4rem;
+}
+
+.section-caption {
+  margin-top: 0;
+}
+
+.time-unit {
+  padding: 14px 6px;
+  border: 2px dashed var(--blue);
+  background: var(--paper);
+}
+
+.time-unit b {
+  display: block;
+  color: var(--blue);
+  font-size: 2.3rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.time-unit small {
+  color: var(--soft);
+  font-size: 1rem;
+  font-variant: small-caps;
+  letter-spacing: 0.15em;
+}
+
+.postcard {
+  perspective: 900px;
+}
+
+.postcard-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 800ms;
+  transform-style: preserve-3d;
+}
+
+.postcard:is(:hover, .is-flipped) .postcard-inner {
+  transform: rotateY(180deg);
+}
+
+.postcard-face {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 20%);
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.postcard-front {
+  flex-direction: column;
+  gap: 6px;
+  border: 2px solid var(--line);
+  background: var(--paper);
+  color: var(--red);
+  font-size: 2.4rem;
+}
+
+.postcard-front::before {
+  position: absolute;
+  border: 2px dashed var(--red);
+  content: "";
+  inset: 8px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.postcard-front span {
+  color: var(--soft);
+  font-size: 1rem;
+  font-variant: small-caps;
+  letter-spacing: 0.18em;
+}
+
+.postcard-back {
+  transform: rotateY(180deg);
+  background: var(--red);
+  color: #fff7f2;
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.postal-footer {
+  color: var(--red);
+  font-size: 1.9rem;
+}
+
+button:focus-visible {
+  outline-color: var(--blue);
+}
+
+@media (max-width: 860px) {
+  .postal-sheet {
+    margin: 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .postal-sheet {
+    padding: 48px 64px 60px;
+  }
+
+  .postal-title {
+    margin-top: 40px;
+    font-size: 5.2rem;
+  }
+
+  .postal-route {
+    margin-bottom: 48px;
+    font-size: 1.3rem;
+  }
+
+  .country-decorations {
+    margin-top: -28px;
+    margin-bottom: 48px;
+  }
+
+  .desktop-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+    align-items: center;
+    gap: 56px;
+    margin: 0 0 56px;
+  }
+
+  .letter-column {
+    min-width: 0;
+  }
+
+  .letter {
+    max-width: none;
+    font-size: 1.35rem;
+  }
+
+  .letter p {
+    margin-bottom: 28px;
+  }
+
+  .wax-seal {
+    margin: 28px 0 0 auto;
+  }
+
+  .time-panel {
+    padding: 36px 0 36px 40px;
+    border-left: 1px solid var(--line);
+  }
+
+  .time-panel .postal-heading {
+    font-size: 2.8rem;
+  }
+
+  .counter {
+    max-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  .time-unit {
+    padding: 22px 10px;
+  }
+
+  .time-unit b {
+    font-size: 2.6rem;
+  }
+
+  .postcard-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-top: 28px;
+  }
+
+  .postcard {
+    height: 220px;
+  }
+}
+
+@media (max-width: 520px) {
+  .postal-sheet {
+    border-width: 10px;
+    padding: 32px 16px 42px;
+  }
+
+  .audio-tools {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .surprise-gate {
+    margin-top: 42px;
+    padding: 22px 16px;
+  }
+
+  .question-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .letter {
+    font-size: 1.15rem;
+  }
+
+  .time-unit small {
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postcard-inner {
+    transition: none;
+  }
+}

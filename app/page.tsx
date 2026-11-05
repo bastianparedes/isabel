@@ -1,613 +1,515 @@
-'use client';
+"use client";
 
-import { JSX, useEffect, useMemo, useState } from "react";
-import picture from './picture.jpg';
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
-/**
- * ────────────────────────────────────────────────────────────────
- * ROMANTIC PAGE — "long-distance love letter" theme (Chile → Germany)
- * React + TypeScript + TailwindCSS. No pre-built component libraries.
- * ────────────────────────────────────────────────────────────────
- * Edit the content in the constants marked "✏️ EDIT HERE"
- * to personalize the copy, date, and secret name.
- */
+const START_DATE = new Date(2026, 5, 10, 0, 0, 0);
 
-// ✏️ EDIT HERE — the date the relationship started
-const START_DATE = new Date("2026-06-10T00:00:00");
-
-// ✏️ EDIT HERE — secret keyword (checked case-insensitively, as a substring)
-const SECRET_KEYWORD = "Bastián Gabriel Paredes Padget";
-
-// ✏️ EDIT HERE — birth date lock (day / month / year, checked as numbers)
-const SECRET_BIRTH_DAY = 30;
-const SECRET_BIRTH_MONTH = 4; // April
-const SECRET_BIRTH_YEAR = 1995;
-
-const MONTHS_ES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-];
-const DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => i + 1);
-const YEAR_OPTIONS = Array.from({ length: 2015 - 1960 + 1 }, (_, i) => 1960 + i);
-
-// ✏️ EDIT HERE — cat's name lock (checked case-insensitively, as a substring)
-const SECRET_CAT_NAME = "Shiva";
-
-// ✏️ EDIT HERE — message revealed once all three answers are correct
-const SECRET_MESSAGE =
-  "When we finally meet in person, I'll ask you to be my girlfriend and everybody will know you are my Polola, because you are the one I choose, Isabel.";
-
-// ✏️ EDIT HERE — the real itinerary toward being reunited
-const ITINERARY = [
-  {
-    code: "01",
-    title: "Talk every single day",
-    detail: "Your good mornings that are my afternoons, my good nights that are your mornings.",
-    stamp: "In progress",
-  },
-  {
-    code: "02",
-    title: "Play video games together",
-    detail: "Even with terrible ping, I'd rather lose with you than win alone.",
-    stamp: "In progress",
-  },
-  {
-    code: "03",
-    title: "Meet each other's families",
-    detail: "Introduce ourselves where it counts: at the table of the other's home.",
-    stamp: "Coming up",
-  },
-  {
-    code: "04",
-    title: "Fly to Germany",
-    detail: "Cross the Atlantic, finally hold you, and ask you to be my girlfriend.",
-    stamp: "The destination",
-  },
+const PHRASES = [
+  "Estúpido",
+  "You are pretty stupid",
+  "Maripollo",
+  "I am happy for you... you dumb motherfucker !",
+  "Is it your face?",
+  "Eins, uno, eins, uno... EINS... UNO !!!",
 ];
 
-// ✏️ EDIT HERE — things you love about her (click to reveal each one)
-const LIKES = [
-  {
-    label: "Your smile",
-    detail: "You turn the night into day."
-  },
-  {
-    label: "Your patience with me",
-    detail: "Thank you for taking care of my heart. It's a little fragile, and it's in your hands."
-  },
-  {
-    label: "German",
-    detail: "You motivate me to keep learning German."
-  },
-  {
-    label: "You make me better",
-    detail: "You make me want to become an even better person, both for myself and for us."
-  },
-  {
-    label: "You listen to me",
-    detail: "You never judge me when I tell you about my thoughts, feelings, or the things happening in my life."
-  },
-  {
-    label: "You share your life with me",
-    detail: "You share every part of your life with me—the sad moments, the happy ones, the ordinary, the boring, the frustrating, and even the private ones."
-  },
-  {
-    label: "You're committing to us",
-    detail: "I know you told me you're afraid of this becoming real and that you might end up getting hurt. But now I can see that, little by little, you're making it more and more real. For example, by introducing me to your family and by letting people on Discord know I'm your almost-boyfriend."
-  },
-  {
-    label: "Your lips",
-    detail: "I love every detail of your body, but if I had to choose my favorite, it would definitely be your lips."
-  }
+const MONTHS = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
 ];
 
-type TimeLeft = { days: number; hours: number; minutes: number; seconds: number };
+type TimeParts = {
+  days: number;
+  hours: string;
+  minutes: string;
+  seconds: string;
+};
 
-function getElapsed(from: Date): TimeLeft {
-  const diff = Math.max(0, Date.now() - from.getTime());
-  const totalSeconds = Math.floor(diff / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return { days, hours, minutes, seconds };
+function formatAudioTime(seconds: number): string {
+  if (!Number.isFinite(seconds)) return "0:00";
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
 }
 
-function pad(n: number): string {
-  return n.toString().padStart(2, "0");
+function getElapsedTime(): TimeParts {
+  const totalSeconds = Math.max(
+    0,
+    Math.floor((Date.now() - START_DATE.getTime()) / 1000),
+  );
+  const totalDays = Math.floor(totalSeconds / 86_400);
+  return {
+    days: totalDays,
+    hours: String(Math.floor(totalSeconds / 3600) % 24).padStart(2, "0"),
+    minutes: String(Math.floor(totalSeconds / 60) % 60).padStart(2, "0"),
+    seconds: String(totalSeconds % 60).padStart(2, "0"),
+  };
 }
 
-const HEART_FIELD = [
-  { left: "6%", size: 14, delay: "0s", dur: "9s" },
-  { left: "18%", size: 9, delay: "2s", dur: "11s" },
-  { left: "32%", size: 12, delay: "4.5s", dur: "8s" },
-  { left: "48%", size: 8, delay: "1s", dur: "12s" },
-  { left: "63%", size: 13, delay: "3.5s", dur: "10s" },
-  { left: "78%", size: 10, delay: "6s", dur: "9s" },
-  { left: "90%", size: 11, delay: "0.5s", dur: "13s" },
+const TIME_UNITS: { key: keyof TimeParts; label: string }[] = [
+  { key: "days", label: "días" },
+  { key: "hours", label: "horas" },
+  { key: "minutes", label: "minutos" },
+  { key: "seconds", label: "segundos" },
 ];
 
-export default function App(): JSX.Element {
+const normalizeAnswer = (value: string) =>
+  value
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase("de");
+
+export default function Home() {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [time, setTime] = useState<TimeParts>({
+    days: 0,
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
+  const [flippedCards, setFlippedCards] = useState<Set<number>>(() => new Set());
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioError, setAudioError] = useState("");
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const [audioVolume, setAudioVolume] = useState(1);
+  const [fullName, setFullName] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [city, setCity] = useState("");
+  const [siblings, setSiblings] = useState("");
+  const [instrument, setInstrument] = useState("");
+
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Cormorant+Garamond:wght@400;500;600&family=Parisienne&family=Space+Mono:wght@400;700&display=swap";
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
+    const updateTime = () => setTime(getElapsedTime());
+    updateTime();
+    const intervalId = window.setInterval(updateTime, 1000);
+    return () => window.clearInterval(intervalId);
   }, []);
 
-  const [time, setTime] = useState<TimeLeft>(() => getElapsed(START_DATE));
+  const startDateLabel = `Desde el ${START_DATE.getDate()} de ${
+    MONTHS[START_DATE.getMonth()]
+  } de ${START_DATE.getFullYear()}`;
+  const unlocked =
+    normalizeAnswer(fullName) === "bastián gabriel paredes padget" &&
+    birthDay === "30" &&
+    birthMonth === "4" &&
+    birthYear === "1995" &&
+    city === "Puerto Montt" &&
+    siblings === "3" &&
+    instrument === "gitarre";
 
   useEffect(() => {
-    const id = setInterval(() => setTime(getElapsed(START_DATE)), 1000);
-    return () => clearInterval(id);
-  }, []);
+    if (!unlocked) {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    }
+  }, [unlocked]);
 
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
-  const toggleReveal = (i: number) => {
-    setRevealed((prev) => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
+  function toggleCard(index: number) {
+    setFlippedCards((current) => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
       return next;
     });
-  };
+  }
 
-  const [nameInput, setNameInput] = useState("");
-  const [dayInput, setDayInput] = useState("");
-  const [monthInput, setMonthInput] = useState("");
-  const [yearInput, setYearInput] = useState("");
-  const [catInput, setCatInput] = useState("");
+  async function toggleAudio() {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-  const nameCorrect = useMemo(
-    () => nameInput.trim().toLowerCase().includes(SECRET_KEYWORD.toLowerCase()),
-    [nameInput]
-  );
-  const birthdateCorrect = useMemo(
-    () =>
-      Number(dayInput) === SECRET_BIRTH_DAY &&
-      Number(monthInput) === SECRET_BIRTH_MONTH &&
-      Number(yearInput) === SECRET_BIRTH_YEAR,
-    [dayInput, monthInput, yearInput]
-  );
-  const catCorrect = useMemo(
-    () => catInput.trim().toLowerCase().includes(SECRET_CAT_NAME.toLowerCase()),
-    [catInput]
-  );
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
 
-  const unlocked = nameCorrect && birthdateCorrect && catCorrect;
-
-  const fieldStyle = (correct: boolean) => ({
-    borderColor: correct ? "#D4A857" : "#6B2A38",
-    color: "#F6E6DE",
-    fontFamily: "'Cormorant Garamond', serif",
-  });
+    setAudioError("");
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch {
+      setAudioError("No se pudo reproducir la canción. Inténtalo de nuevo.");
+    }
+  }
 
   return (
-    <div
-      className="min-h-screen w-full"
-      style={{
-        background: "radial-gradient(120% 90% at 50% 0%, #4A1420 0%, #33101C 45%, #250B15 100%)",
-        fontFamily: "'Cormorant Garamond', serif",
-        color: "#F6E6DE",
-      }}
-    >
-      <style>{`
-        @keyframes float-heart {
-          0% { transform: translateY(0) scale(1); opacity: 0; }
-          10% { opacity: 0.55; }
-          90% { opacity: 0.35; }
-          100% { transform: translateY(-620px) scale(1.15); opacity: 0; }
-        }
-        @keyframes fly-path {
-          0% { offset-distance: 0%; opacity: 0; }
-          8% { opacity: 1; }
-          92% { opacity: 1; }
-          100% { offset-distance: 100%; opacity: 0; }
-        }
-        @keyframes dash-move { to { stroke-dashoffset: -32; } }
-        @keyframes rise-fade {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes unfold {
-          from { opacity: 0; transform: scaleY(0.85); }
-          to { opacity: 1; transform: scaleY(1); }
-        }
-        @keyframes glow-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(212,168,87,0.0); }
-          50% { box-shadow: 0 0 22px 2px rgba(212,168,87,0.25); }
-        }
-        .heart-particle { position: absolute; bottom: -40px; animation-name: float-heart; animation-timing-function: ease-in; animation-iteration-count: infinite; color: #E8748F; }
-        .plane-anim {
-          offset-path: path("M 12 92 C 90 24, 210 24, 288 10");
-          animation: fly-path 7s linear infinite;
-        }
-        .dash-anim { animation: dash-move 1.8s linear infinite; }
-        .rise { animation: rise-fade 0.6s ease both; }
-        .unfold { animation: unfold 0.35s ease both; transform-origin: top; }
-        .glow { animation: glow-pulse 3.5s ease-in-out infinite; }
-        @media (prefers-reduced-motion: reduce) {
-          .plane-anim, .dash-anim, .rise, .unfold, .glow, .heart-particle { animation: none !important; }
-        }
-        input:focus-visible, button:focus-visible {
-          outline: 2px solid #D4A857;
-          outline-offset: 3px;
-        }
-      `}</style>
+    <main className="postal-sheet mx-auto my-0 max-w-[1120px] px-7 pt-11 pb-14 sm:my-7">
+      <header className="flex flex-wrap items-start justify-between gap-3.5">
+        <div className="postage-stamp" aria-label="Chile a Alemania">
+          <b aria-hidden="true">♥</b>
+          Chile → Alemania
+        </div>
+      </header>
 
-      {/* ───────────────── HERO ───────────────── */}
-      <section className="relative overflow-hidden px-6 pt-24 pb-24 sm:pt-32 sm:pb-36">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          {HEART_FIELD.map((h, i) => (
-            <span
-              key={i}
-              className="heart-particle"
-              style={{ left: h.left, fontSize: h.size, animationDelay: h.delay, animationDuration: h.dur }}
-            >
-              ♥
-            </span>
-          ))}
+      <h1 className="postal-title mt-8 text-center">
+        Para ti, mi Isabel
+      </h1>
+      <p className="postal-route mb-8 text-center italic">
+        Una carta que cruza el océano
+      </p>
+
+      <div className="country-decorations" role="img" aria-label="Chile y Alemania">
+        <span className="country-flag chile-flag" aria-hidden="true">
+          <svg viewBox="0 0 60 40">
+            <path fill="#fff" d="M0 0h60v20H0z" />
+            <path fill="#d52b1e" d="M0 20h60v20H0z" />
+            <path fill="#0039a6" d="M0 0h20v20H0z" />
+            <path
+              fill="#fff"
+              d="m10 3.5 1.9 5.8H18l-4.9 3.6 1.9 5.8-5-3.6-4.9 3.6L7 12.9l-5-3.6h6.1z"
+            />
+          </svg>
+        </span>
+        <span className="country-route" aria-hidden="true">
+          <span>♥</span>
+        </span>
+        <span className="country-flag germany-flag" aria-hidden="true">
+          <svg viewBox="0 0 60 40">
+            <path fill="#181818" d="M0 0h60v13.34H0z" />
+            <path fill="#d00" d="M0 13.33h60v13.34H0z" />
+            <path fill="#ffce00" d="M0 26.66h60V40H0z" />
+          </svg>
+        </span>
+      </div>
+
+      <div className="desktop-layout">
+        <div className="letter-column">
+          <section className="letter mx-auto mb-4 max-w-[600px]">
+            <p className="letter-greeting">Mi cielo,</p>
+            <p>
+              Aunque nos separan miles de kilómetros, un océano y varias horas
+              de diferencia, cada día te siento más cerca. Cada mensaje, cada
+              videollamada y cada “te quero Basti” tuyo son lo mejor de mi día.
+              Gracias llamarme todos los días y por hacer que la distancia sea solo un
+              número. Un día ese número será cero.
+            </p>
+            <p>Te quiero.</p>
+            <p className="letter-signature">— Tu chileno</p>
+          </section>
+
+          <div className="wax-seal" aria-hidden="true">
+            ♥
+          </div>
         </div>
 
-        <div className="relative mx-auto max-w-3xl text-center">
-          <p
-            className="mb-6"
-            style={{ fontFamily: "'Parisienne', cursive", fontSize: "1.6rem", color: "#D4A857" }}
-          >
-            a letter from Chile, addressed to Germany
+        <section className="time-panel" aria-labelledby="time-heading">
+          <h2 id="time-heading" className="postal-heading text-center">
+            Nuestro tiempo juntos
+          </h2>
+          <p className="section-caption mb-4 text-center italic">
+            {startDateLabel}
           </p>
-
-          <h1
-            className="text-4xl leading-[1.15] sm:text-6xl"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontStyle: "italic" }}
+          <div
+            className="counter mx-auto mb-16 grid max-w-[640px] grid-cols-[repeat(auto-fit,minmax(104px,1fr))] gap-3.5"
+            aria-label="Tiempo juntos"
+            aria-live="off"
           >
-            We have been together for
-          </h1>
-          <p className="mx-auto mt-4 max-w-md text-base sm:text-lg" style={{ color: "#D9B8AE" }}>
-            counting every heartbeat since June 10, 2026
-          </p>
-
-          {/* flight path */}
-          <div className="relative mx-auto mt-10 h-24 max-w-md">
-            <svg viewBox="0 0 300 100" className="h-full w-full" fill="none">
-              <path
-                d="M 12 92 C 90 24, 210 24, 288 10"
-                stroke="#6B2A38"
-                strokeWidth="2"
-                strokeDasharray="1 11"
-                strokeLinecap="round"
-                className="dash-anim"
-              />
-              <circle cx="12" cy="92" r="4" fill="#D4A857" />
-              <circle cx="288" cy="10" r="4" fill="#E8748F" />
-              <text x="4" y="78" fill="#D9B8AE" fontSize="12" fontFamily="'Cormorant Garamond', serif">
-                You
-              </text>
-              <text x="272" y="28" fill="#D9B8AE" fontSize="12" fontFamily="'Cormorant Garamond', serif">
-                Me
-              </text>
-            </svg>
-            <div className="plane-anim absolute left-0 top-0 text-lg" aria-hidden="true">
-              💌
-            </div>
-          </div>
-
-          {/* counter */}
-          <div className="mx-auto mt-8 grid max-w-2xl grid-cols-4 gap-2 sm:gap-4">
-            {[
-              { value: time.days, label: "days" },
-              { value: time.hours, label: "hours" },
-              { value: time.minutes, label: "min" },
-              { value: time.seconds, label: "sec" },
-            ].map((unit, idx) => (
-              <div
-                key={idx}
-                className="glow rounded-2xl border px-2 py-4 sm:px-4 sm:py-6"
-                style={{ borderColor: "#6B2A38", background: "rgba(74,20,32,0.55)" }}
-              >
-                <span
-                  className="block text-2xl tabular-nums sm:text-4xl"
-                  style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: "#F6E6DE" }}
-                >
-                  {unit.label === "days" ? unit.value : pad(unit.value)}
-                </span>
-                <span
-                  className="mt-1 block text-[10px] tracking-[0.15em] sm:text-xs"
-                  style={{ color: "#D4A857", fontFamily: "'Space Mono', monospace" }}
-                >
-                  {unit.label.toUpperCase()}
-                </span>
+            {TIME_UNITS.map(({ key, label }) => (
+              <div className="time-unit text-center" key={key}>
+                <b>{time[key]}</b>
+                <small>{label}</small>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-sm" style={{ color: "#B98A94", fontStyle: "italic" }}>
-            and counting, until we do not have to anymore.
-          </p>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      {/* ───────────────── PLANS / ITINERARY ───────────────── */}
-      {/* <section className="px-6 py-20 sm:py-28" style={{ background: "rgba(20,7,12,0.5)" }}>
-        <div className="mx-auto max-w-2xl">
-          <p
-            className="mb-2 text-center"
-            style={{ fontFamily: "'Parisienne', cursive", fontSize: "1.5rem", color: "#D4A857" }}
-          >
-            what we are promising each other
-          </p>
-          <h2
-            className="mb-12 text-center text-3xl sm:text-4xl"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontStyle: "italic" }}
-          >
-            Our road to Germany
-          </h2>
-
-          <div className="relative">
-            <div
-              className="absolute left-6.75 top-2 bottom-2 w-px sm:left-8.75"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(to bottom, #6B2A38 0, #6B2A38 5px, transparent 5px, transparent 11px)",
-              }}
-              aria-hidden="true"
-            />
-            <ol className="space-y-8">
-              {ITINERARY.map((step) => (
-                <li key={step.code} className="relative flex gap-5 sm:gap-6">
-                  <span
-                    className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border text-base sm:h-17.5 sm:w-17.5"
-                    style={{
-                      borderColor: "#D4A857",
-                      background: "#33101C",
-                      color: "#D4A857",
-                      fontFamily: "'Fraunces', serif",
-                      fontStyle: "italic",
-                    }}
-                  >
-                    {step.code}
-                  </span>
-                  <div
-                    className="flex-1 rounded-2xl border px-5 py-4"
-                    style={{ borderColor: "#6B2A38", background: "rgba(74,20,32,0.4)" }}
-                  >
-                    <div className="mb-1 flex items-center justify-between gap-3">
-                      <h3
-                        className="text-lg sm:text-xl"
-                        style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
-                      >
-                        {step.title}
-                      </h3>
-                      <span
-                        className="shrink-0 text-xs italic"
-                        style={{ color: step.stamp === "The destination" ? "#E8748F" : "#B98A94" }}
-                      >
-                        {step.stamp}
-                      </span>
-                    </div>
-                    <p className="text-base" style={{ color: "#D9B8AE" }}>
-                      {step.detail}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </div>
-      </section> */}
-
-      {/* ───────────────── THINGS I LOVE ABOUT YOU ───────────────── */}
-      <section className="px-6 py-20 sm:py-28">
-        <div className="mx-auto max-w-3xl">
-          <p
-            className="mb-2 text-center"
-            style={{ fontFamily: "'Parisienne', cursive", fontSize: "1.5rem", color: "#D4A857" }}
-          >
-            a bouquet of reasons
-          </p>
-          <h2
-            className="mb-3 text-center text-3xl sm:text-4xl"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontStyle: "italic" }}
-          >
-            Things I love about you
-          </h2>
-          <p className="mb-10 text-center text-base" style={{ color: "#D9B8AE" }}>
-            tap each heart to open it
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {LIKES.map((like, i) => {
-              const open = revealed.has(i);
-              return (
-                <button
-                  key={i}
-                  onClick={() => toggleReveal(i)}
-                  aria-expanded={open}
-                  className="rounded-2xl border p-4 text-left transition-colors sm:p-5"
-                  style={{
-                    borderColor: open ? "#E8748F" : "#6B2A38",
-                    background: open ? "rgba(74,20,32,0.55)" : "rgba(51,16,28,0.5)",
-                  }}
-                >
-                  <span
-                    className="mb-2 block text-lg"
-                    style={{ color: open ? "#E8748F" : "#8C4A56" }}
-                    aria-hidden="true"
-                  >
-                    {open ? "❤" : "♡"}
-                  </span>
-                  <span
-                    className="block text-base sm:text-lg"
-                    style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, color: "#F6E6DE" }}
-                  >
-                    {like.label}
-                  </span>
-                  {open ? (
-                    <p className="unfold mt-3 text-sm leading-relaxed" style={{ color: "#D9B8AE" }}>
-                      {like.detail}
-                    </p>
-                  ) : (
-                    <span className="mt-3 block text-xs italic" style={{ color: "#8C4A56" }}>
-                      tap to open
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────────────── SECRET SPOT ───────────────── */}
-      <section className="px-6 py-20 sm:py-28" style={{ background: "rgba(20,7,12,0.5)" }}>
-        <div className="mx-auto max-w-lg text-center">
-          <p
-            className="mb-2"
-            style={{ fontFamily: "'Parisienne', cursive", fontSize: "1.5rem", color: "#D4A857" }}
-          >
-            sealed with a kiss
-          </p>
-          <h2
-            className="mb-3 text-3xl sm:text-4xl"
-            style={{ fontFamily: "'Fraunces', serif", fontWeight: 600, fontStyle: "italic" }}
-          >
-            A secret letter
-          </h2>
-          <p className="mb-8 text-base" style={{ color: "#D9B8AE" }}>
-            three keys open it: my full name, my birth date, and my cat's name.
-          </p>
-
-          <div className="space-y-3">
-            <div className="text-left">
-              <label htmlFor="secret-name" className="sr-only">
-                Type my full name
-              </label>
-              <input
-                id="secret-name"
-                type="text"
-                value={nameInput}
-                onChange={(e) => setNameInput(e.target.value)}
-                placeholder="my full name..."
-                autoComplete="off"
-                className="w-full rounded-full border bg-transparent px-5 py-3 text-center text-base outline-none"
-                style={fieldStyle(nameCorrect)}
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label htmlFor="secret-day" className="sr-only">
-                  Day I was born
-                </label>
-                <select
-                  id="secret-day"
-                  value={dayInput}
-                  onChange={(e) => setDayInput(e.target.value)}
-                  className="w-full appearance-none rounded-full border bg-transparent px-3 py-3 text-center text-base outline-none"
-                  style={{ ...fieldStyle(birthdateCorrect), colorScheme: "dark" }}
-                >
-                  <option value="" style={{ color: "#33101C" }}>
-                    Día
-                  </option>
-                  {DAY_OPTIONS.map((d) => (
-                    <option key={d} value={d} style={{ color: "#33101C" }}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="secret-month" className="sr-only">
-                  Month I was born
-                </label>
-                <select
-                  id="secret-month"
-                  value={monthInput}
-                  onChange={(e) => setMonthInput(e.target.value)}
-                  className="w-full appearance-none rounded-full border bg-transparent px-3 py-3 text-center text-base outline-none"
-                  style={{ ...fieldStyle(birthdateCorrect), colorScheme: "dark" }}
-                >
-                  <option value="" style={{ color: "#33101C" }}>
-                    Mes
-                  </option>
-                  {MONTHS_ES.map((m, i) => (
-                    <option key={m} value={i + 1} style={{ color: "#33101C" }}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="secret-year" className="sr-only">
-                  Year I was born
-                </label>
-                <select
-                  id="secret-year"
-                  value={yearInput}
-                  onChange={(e) => setYearInput(e.target.value)}
-                  className="w-full appearance-none rounded-full border bg-transparent px-3 py-3 text-center text-base outline-none"
-                  style={{ ...fieldStyle(birthdateCorrect), colorScheme: "dark" }}
-                >
-                  <option value="" style={{ color: "#33101C" }}>
-                    Año
-                  </option>
-                  {YEAR_OPTIONS.map((y) => (
-                    <option key={y} value={y} style={{ color: "#33101C" }}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="text-left">
-              <label htmlFor="secret-cat" className="sr-only">
-                Type my cat's name
-              </label>
-              <input
-                id="secret-cat"
-                type="text"
-                value={catInput}
-                onChange={(e) => setCatInput(e.target.value)}
-                placeholder="my cat's name..."
-                autoComplete="off"
-                className="w-full rounded-full border bg-transparent px-5 py-3 text-center text-base outline-none"
-                style={fieldStyle(catCorrect)}
-              />
-            </div>
-          </div>
-
-          {unlocked && (
-            <div
-              className="unfold mt-6 rounded-2xl border px-6 py-6 text-left"
-              style={{ borderColor: "#D4A857", background: "rgba(74,20,32,0.55)" }}
-            >
-              <p
-                className="mb-2"
-                style={{ fontFamily: "'Parisienne', cursive", fontSize: "1.3rem", color: "#D4A857" }}
-              >
-                for you
-              </p>
-              <p className="text-base leading-relaxed sm:text-lg" style={{ color: "#F6E6DE" }}>
-                {SECRET_MESSAGE}
-              </p>
-              <Image src={picture} alt="Picture" />
-            </div>
-          )}
-        </div>
-      </section>
-
-      <footer className="px-6 py-10 text-center">
-        <p style={{ fontFamily: "'Parisienne', cursive", fontSize: "1.3rem", color: "#8C4A56" }}>
-          made with the distance still between us, for when there wont be any left
+      <section aria-labelledby="postcards-heading">
+        <h2 id="postcards-heading" className="postal-heading text-center">
+          Nuestras postales
+        </h2>
+        <p className="section-caption text-center italic">
+          Fahre mit der Maus über jede Postkarte (oder tippe darauf)
         </p>
+        <div className="postcard-grid mt-5 grid grid-cols-[repeat(auto-fit,minmax(min(230px,100%),1fr))] gap-5">
+          {PHRASES.map((phrase, index) => {
+            const isFlipped = flippedCards.has(index);
+
+            return (
+              <button
+                key={phrase}
+                type="button"
+                className={`postcard h-[180px] w-full cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 ${
+                  isFlipped ? "is-flipped" : ""
+                }`}
+                onClick={() => toggleCard(index)}
+                aria-label={`${isFlipped ? "Ocultar" : "Revelar"} postal ${
+                  index + 1
+                }`}
+                aria-pressed={isFlipped}
+              >
+                <span className="postcard-inner">
+                  <span
+                    className="postcard-face postcard-front"
+                    aria-hidden={isFlipped}
+                  >
+                    ♥<span>Postal {index + 1}</span>
+                  </span>
+                  <span
+                    className="postcard-face postcard-back"
+                    aria-hidden={!isFlipped}
+                  >
+                    “{phrase}”
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <footer className="postal-footer mt-[60px] text-center">
+        Ich gehöre dir
       </footer>
-    </div>
+
+      <section className="surprise-gate" aria-labelledby="surprise-heading">
+        <h2 id="surprise-heading" className="postal-heading text-center">
+          Eine kleine Überraschung
+        </h2>
+        <p className="section-caption surprise-description text-center italic">
+          Beantworte alle Fragen richtig, dann wartet eine Überraschung auf dich.
+        </p>
+
+        <div className="question-grid">
+          <div className="question-field">
+            <label htmlFor="full-name">Wie lautet mein vollständiger Name?</label>
+            <input
+              id="full-name"
+              type="text"
+              autoComplete="off"
+              placeholder="Vollständigen Namen eingeben"
+              value={fullName}
+              onChange={(event) => setFullName(event.currentTarget.value)}
+            />
+          </div>
+
+          <fieldset className="question-field birthdate-field">
+            <legend>Wann bin ich geboren?</legend>
+            <div className="birthdate-selects">
+              <label>
+                <span>Tag</span>
+                <select
+                  aria-label="Geburtstag"
+                  value={birthDay}
+                  onChange={(event) => setBirthDay(event.currentTarget.value)}
+                >
+                  <option value="">Tag</option>
+                  {Array.from({ length: 31 }, (_, index) => index + 1).map(
+                    (day) => (
+                      <option key={day} value={String(day)}>
+                        {day}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+              <label>
+                <span>Monat</span>
+                <select
+                  aria-label="Geburtsmonat"
+                  value={birthMonth}
+                  onChange={(event) => setBirthMonth(event.currentTarget.value)}
+                >
+                  <option value="">Monat</option>
+                  {[
+                    "Januar",
+                    "Februar",
+                    "März",
+                    "April",
+                    "Mai",
+                    "Juni",
+                    "Juli",
+                    "August",
+                    "September",
+                    "Oktober",
+                    "November",
+                    "Dezember",
+                  ].map((month, index) => (
+                    <option key={month} value={String(index + 1)}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>Jahr</span>
+                <select
+                  aria-label="Geburtsjahr"
+                  value={birthYear}
+                  onChange={(event) => setBirthYear(event.currentTarget.value)}
+                >
+                  <option value="">Jahr</option>
+                  {Array.from({ length: 60 }, (_, index) => 1960 + index).map(
+                    (year) => (
+                      <option key={year} value={String(year)}>
+                        {year}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </label>
+            </div>
+          </fieldset>
+
+          <div className="question-field">
+            <label htmlFor="home-city">Aus welcher Stadt komme ich?</label>
+            <select
+              id="home-city"
+              value={city}
+              onChange={(event) => setCity(event.currentTarget.value)}
+            >
+              <option value="">Stadt auswählen</option>
+              {["Santiago", "Valparaíso", "Puerto Montt", "Concepción"].map(
+                (option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
+
+          <div className="question-field">
+            <label htmlFor="siblings">Wie viele Geschwister habe ich?</label>
+            <select
+              id="siblings"
+              value={siblings}
+              onChange={(event) => setSiblings(event.currentTarget.value)}
+            >
+              <option value="">Anzahl auswählen</option>
+              {Array.from({ length: 7 }, (_, count) => count).map((count) => (
+                <option key={count} value={String(count)}>
+                  {count}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="question-field">
+            <label htmlFor="instrument">
+              Welches Musikinstrument spiele ich?
+            </label>
+            <select
+              id="instrument"
+              value={instrument}
+              onChange={(event) => setInstrument(event.currentTarget.value)}
+            >
+              <option value="">Instrument auswählen</option>
+              {["Klavier", "Gitarre", "Schlagzeug", "Geige"].map((option) => (
+                <option key={option} value={option.toLocaleLowerCase("de")}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {unlocked ? (
+          <>
+            <p className="surprise-success" role="status">
+              Alle Antworten sind richtig. Deine Überraschung wartet auf dich ♥
+            </p>
+            <audio
+              ref={audioRef}
+              src="/song.mp3"
+              preload="none"
+              onEnded={() => setIsPlaying(false)}
+              onLoadedMetadata={(event) => {
+                setAudioDuration(event.currentTarget.duration);
+                setAudioCurrentTime(event.currentTarget.currentTime);
+              }}
+              onTimeUpdate={(event) =>
+                setAudioCurrentTime(event.currentTarget.currentTime)
+              }
+              onError={() =>
+                setAudioError(
+                  "Das Lied konnte nicht geladen werden. Bitte versuche es erneut.",
+                )
+              }
+            />
+            <div className="music-control">
+              <button
+                type="button"
+                className="music-button"
+                onClick={toggleAudio}
+                aria-pressed={isPlaying}
+              >
+                <span aria-hidden="true">{isPlaying ? "Ⅱ" : "▶"}</span>
+                {isPlaying ? "Lied pausieren" : "Überraschung abspielen"}
+              </button>
+              <div className="audio-tools">
+                <div className="audio-seek">
+                  <label className="sr-only" htmlFor="song-progress">
+                    Position des Liedes
+                  </label>
+                  <input
+                    id="song-progress"
+                    type="range"
+                    min="0"
+                    max={audioDuration || 0}
+                    step="0.1"
+                    value={Math.min(audioCurrentTime, audioDuration || 0)}
+                    disabled={!audioDuration}
+                    onChange={(event) => {
+                      const nextTime = Number(event.currentTarget.value);
+                      setAudioCurrentTime(nextTime);
+                      if (audioRef.current)
+                        audioRef.current.currentTime = nextTime;
+                    }}
+                  />
+                  <div className="audio-time" aria-hidden="true">
+                    <span>{formatAudioTime(audioCurrentTime)}</span>
+                    <span>{formatAudioTime(audioDuration)}</span>
+                  </div>
+                </div>
+                <div className="audio-volume">
+                  <label htmlFor="song-volume">Lautstärke</label>
+                  <input
+                    id="song-volume"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioVolume}
+                    onChange={(event) => {
+                      const nextVolume = Number(event.currentTarget.value);
+                      setAudioVolume(nextVolume);
+                      if (audioRef.current)
+                        audioRef.current.volume = nextVolume;
+                    }}
+                  />
+                  <span className="sr-only" aria-live="polite">
+                    {Math.round(audioVolume * 100)}%
+                  </span>
+                </div>
+              </div>
+              {audioError && (
+                <p className="music-error" role="alert">
+                  {audioError}
+                </p>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="surprise-locked" role="status">
+            Beantworte die Fragen, um die Überraschung freizuschalten.
+          </p>
+        )}
+      </section>
+    </main>
   );
 }
