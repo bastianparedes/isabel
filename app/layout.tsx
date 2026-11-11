@@ -1,31 +1,27 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import "./romantic.css";
 
+const LANGUAGE_COOKIE = "isabel-site-language";
+
 export const metadata: Metadata = {
-  title: "¡Feliz cumpleaños, Isabel!",
-  description: "Una felicitación de cumpleaños para Isabel.",
+  title: "Isabel · Psychologin",
+  description:
+    "Einfühlsame psychologische Begleitung auf Deutsch und Englisch, online und vor Ort.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const language =
+    cookieStore.get(LANGUAGE_COOKIE)?.value === "en" ? "en" : "de";
+
   return (
-    <html lang="es" className="h-full antialiased">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Press+Start+2P&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang={language} className="h-full antialiased">
       <body>{children}</body>
     </html>
   );
