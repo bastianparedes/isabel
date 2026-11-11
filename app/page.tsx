@@ -116,7 +116,7 @@ export default function Home() {
             Ich wünsche dir einen wunderschönen Geburtstag und ein tolles neues
             Lebensjahr!
           </p>
-          <p className="px sig">— Aster</p>
+          <p className="px sig">— Basti</p>
         </section>
 
         <section className="box" aria-label="Deseos">
