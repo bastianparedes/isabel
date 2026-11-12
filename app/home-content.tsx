@@ -352,8 +352,12 @@ export default function HomeContent({
                 </a>
               </p>
             </div>
-            <div className="card-hero" aria-hidden="true">
-              <div className="mono">Ψ</div>
+            <div className="card-hero">
+              <div className="card-hero-art" aria-hidden="true">
+                <span className="card-hero-orbit" />
+                <span className="card-hero-orbit card-hero-orbit-inner" />
+                <span className="mono">Ψ</span>
+              </div>
               <small>{text.qualification}</small>
             </div>
           </div>

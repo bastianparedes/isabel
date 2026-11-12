@@ -221,24 +221,50 @@ nav .btn {
 }
 
 .card-hero {
+  position: relative;
   display: flex;
   aspect-ratio: 1 / 1;
   flex-direction: column;
   justify-content: flex-end;
+  overflow: hidden;
   border-radius: 28px;
   background: var(--soft);
   padding: 36px;
 }
 
+.card-hero-art {
+  position: relative;
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  place-items: center;
+}
+
+.card-hero-orbit {
+  position: absolute;
+  width: min(76%, 280px);
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  transform: rotate(-35deg) scaleY(0.52);
+}
+
+.card-hero-orbit-inner {
+  width: min(58%, 210px);
+  transform: rotate(35deg) scaleY(0.52);
+}
+
 .card-hero .mono {
-  margin-bottom: auto;
   color: var(--highlight);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 5rem;
+  font-size: clamp(6rem, 12vw, 9rem);
   line-height: 1;
 }
 
 .card-hero small {
+  position: relative;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
   color: var(--muted);
 }
 
@@ -442,6 +468,10 @@ footer p {
 
   nav {
     gap: 10px;
+  }
+
+  .hero-actions .btn:first-child {
+    text-align: center;
   }
 }
 
