@@ -363,6 +363,25 @@ ul.tick li::before {
   margin-bottom: 1em;
 }
 
+.contact-methods .btn.ghost {
+  margin-left: 0;
+}
+
+.appointment-details {
+  max-width: 46em;
+  margin: 0 auto 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--bg);
+  padding: 18px 24px;
+  text-align: left;
+  list-style: none;
+}
+
+.appointment-details li + li {
+  margin-top: 8px;
+}
+
 .contact-links {
   display: flex;
   flex-wrap: wrap;

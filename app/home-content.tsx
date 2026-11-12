@@ -8,10 +8,7 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
-import { useState } from "react";
-import { getLocalizedTitle } from "./site-metadata";
-
-const LANGUAGE_COOKIE = "isabel-site-language";
+import { LANGUAGE_COOKIE } from "./site-metadata";
 
 const contactDetails = {
   email: "b.paredes.dev@gmail.com",
@@ -32,7 +29,7 @@ const content = {
     book: "Kontakt",
     eyebrow: "Psychologische Begleitung · Online und vor Ort",
     headline: "Ein sicherer Raum, um zu verstehen, was du fühlst",
-    lead: "Eine einfühlsame, respektvolle und wertfreie psychologische Begleitung auf Deutsch und Englisch. Ein erster Schritt, damit es dir besser geht – in deinem Tempo.",
+    lead: "Psychologische Begleitung auf Deutsch und Englisch - mit Gesprächstherapie, klinisch-psychologischer Begleitung und Virtual-Reality-Übungen. Online und vor Ort.",
     firstConversation: "Erstes Gespräch vereinbaren",
     viewServices: "Angebot ansehen",
     qualification:
@@ -41,7 +38,7 @@ const content = {
     aboutTitle: "Hallo, ich bin Isabel",
     aboutParagraphs: [
       "Ich bin Psychologin und studiere derzeit im Master Clinical Psychology and Psychotherapy. Ich glaube, dass über das zu sprechen, was uns beschäftigt, mit einem Menschen, der wirklich zuhört, bereits der Anfang einer Veränderung sein kann.",
-      "Deutsch ist meine Muttersprache und ich spreche fließend Englisch. Du kannst dich also in der Sprache ausdrücken, in der du dich am wohlsten fühlst. Jeder Mensch ist anders: Ich passe die Begleitung an deine Bedürfnisse an – nicht umgekehrt.",
+      "Deutsch ist meine Muttersprache und ich spreche fließend Englisch. Du kannst dich also in der Sprache ausdrücken, in der du dich am wohlsten fühlst. Jeder Mensch ist anders: Ich passe die Begleitung an deine Bedürfnisse an - nicht umgekehrt.",
     ],
     servicesEyebrow: "Angebot",
     servicesTitle: "Meine psychologischen Angebote",
@@ -92,7 +89,7 @@ const content = {
       {
         title: "Begleitung",
         description:
-          "Regelmäßige Gespräche und ein gemeinsamer Blick auf deine Entwicklung – immer in deinem Tempo.",
+          "Regelmäßige Gespräche und ein gemeinsamer Blick auf deine Entwicklung - immer in deinem Tempo.",
       },
     ],
     commitmentEyebrow: "Meine Haltung",
@@ -107,8 +104,7 @@ const content = {
     contactEyebrow: "Kontakt",
     contactTitle: "Der erste Schritt ist oft der schwerste",
     bookAppointment: "Termin vereinbaren",
-    contactLead:
-      "Schreib mir, und ich melde mich so bald wie möglich. Das erste Gespräch ist unverbindlich.",
+    contactLead: "Buche deinen Termin online oder schreib mir direkt.",
     languageSelector: "Sprache auswählen",
   },
   en: {
@@ -120,7 +116,7 @@ const content = {
     book: "Get in touch",
     eyebrow: "Psychological support · Online and in person",
     headline: "A safe space to understand what you’re feeling",
-    lead: "Warm, respectful and non-judgmental psychological support in German and English. A first step towards feeling better, at your own pace.",
+    lead: "Psychological support in German and English, including talk therapy, clinical psychological support and virtual reality exercises. Online and in person.",
     firstConversation: "Arrange an initial conversation",
     viewServices: "Explore services",
     qualification:
@@ -195,8 +191,7 @@ const content = {
     contactEyebrow: "Contact",
     contactTitle: "Taking the first step is the hardest part",
     bookAppointment: "Book an appointment",
-    contactLead:
-      "Get in touch and I’ll reply as soon as I can. The initial conversation comes with no obligation.",
+    contactLead: "Book your appointment online or get in touch with me directly.",
     languageSelector: "Select language",
   },
   es: {
@@ -208,7 +203,7 @@ const content = {
     book: "Contacto",
     eyebrow: "Acompañamiento psicológico · Online y presencial",
     headline: "Un espacio seguro para comprender lo que sientes",
-    lead: "Acompañamiento psicológico cercano, respetuoso y sin juicios, en alemán y en inglés. Un primer paso para sentirte mejor, a tu ritmo.",
+    lead: "Acompañamiento psicológico en alemán e inglés: terapia de conversación, apoyo psicológico clínico y ejercicios con realidad virtual. Online y presencial.",
     firstConversation: "Concertar una primera conversación",
     viewServices: "Ver servicios",
     qualification:
@@ -283,8 +278,7 @@ const content = {
     contactEyebrow: "Contacto",
     contactTitle: "Dar el primer paso suele ser lo más difícil",
     bookAppointment: "Agendar una cita",
-    contactLead:
-      "Escríbeme y te responderé lo antes posible. La primera conversación no implica ningún compromiso.",
+    contactLead: "Agenda tu cita online o escríbeme directamente.",
     languageSelector: "Seleccionar idioma",
   },
 } as const;
@@ -296,27 +290,29 @@ export default function HomeContent({
 }: {
   initialLanguage: Language;
 }) {
-  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const language = initialLanguage;
   const text = content[language];
 
   function changeLanguage(nextLanguage: string) {
-    if (nextLanguage !== "de" && nextLanguage !== "en" && nextLanguage !== "es") {
+    if (
+      nextLanguage !== "de" &&
+      nextLanguage !== "en" &&
+      nextLanguage !== "es"
+    ) {
       return;
     }
 
     document.cookie = `${LANGUAGE_COOKIE}=${nextLanguage}; Path=/; Max-Age=31536000; SameSite=Lax${
       window.location.protocol === "https:" ? "; Secure" : ""
     }`;
-    document.documentElement.lang = nextLanguage;
-    document.title = getLocalizedTitle(nextLanguage);
-    setLanguage(nextLanguage);
+    window.location.assign(`/${nextLanguage}`);
   }
 
   return (
     <>
       <header className="site-header">
         <div className="wrap header-inner">
-          <a className="logo" href="#inicio">
+          <a className="logo" href={`/${language}#inicio`}>
             {text.brand}
           </a>
           <nav aria-label={text.navigationLabel}>
@@ -450,14 +446,6 @@ export default function HomeContent({
             <h2>{text.contactTitle}</h2>
             <p className="lead">{text.contactLead}</p>
             <div className="contact-methods">
-              <a className="btn" href={`mailto:${contactDetails.email}`}>
-                <Mail aria-hidden="true" size={18} />
-                {contactDetails.email}
-              </a>
-              <a className="btn" href={`tel:${contactDetails.phone}`}>
-                <Phone aria-hidden="true" size={18} />
-                {contactDetails.phoneDisplay}
-              </a>
               <a
                 className="btn"
                 href={contactDetails.calendar}
@@ -466,6 +454,20 @@ export default function HomeContent({
               >
                 <CalendarDays aria-hidden="true" size={18} />
                 {text.bookAppointment}
+              </a>
+              <a
+                className="btn ghost"
+                href={`mailto:${contactDetails.email}`}
+              >
+                <Mail aria-hidden="true" size={18} />
+                {contactDetails.email}
+              </a>
+              <a
+                className="btn ghost"
+                href={`tel:${contactDetails.phone}`}
+              >
+                <Phone aria-hidden="true" size={18} />
+                {contactDetails.phoneDisplay}
               </a>
             </div>
             <p className="contact-links">
