@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
-import SiteContent, { type Language } from "./site-content";
+import HomeContent, { type Language } from "./home-content";
 
 const LANGUAGE_COOKIE = "isabel-site-language";
 
 export default async function Home() {
   const cookieStore = await cookies();
   const savedLanguage = cookieStore.get(LANGUAGE_COOKIE)?.value;
-  const initialLanguage: Language = savedLanguage === "en" ? "en" : "de";
+  const language: Language =
+    savedLanguage === "en" || savedLanguage === "es" ? savedLanguage : "de";
 
-  return <SiteContent initialLanguage={initialLanguage} />;
+  return <HomeContent initialLanguage={language} />;
 }

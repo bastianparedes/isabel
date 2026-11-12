@@ -17,8 +17,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
+  const savedLanguage = cookieStore.get(LANGUAGE_COOKIE)?.value;
   const language =
-    cookieStore.get(LANGUAGE_COOKIE)?.value === "en" ? "en" : "de";
+    savedLanguage === "en" || savedLanguage === "es" ? savedLanguage : "de";
 
   return (
     <html lang={language} className="h-full antialiased">
