@@ -45,7 +45,7 @@ const content = {
     services: [
       {
         title: "Übungen mit Virtual Reality",
-        image: "/services/virtual-reality.jpg",
+        image: "/services/virtual-reality.webp",
         imageAlt: "Person mit VR-Headset bei einer therapeutischen Übung",
         description:
           "In einer geschützten virtuellen Umgebung können herausfordernde Situationen in deinem Tempo vorbereitet und geübt werden.",
@@ -132,7 +132,7 @@ const content = {
     services: [
       {
         title: "Virtual reality exercises",
-        image: "/services/virtual-reality.jpg",
+        image: "/services/virtual-reality.webp",
         imageAlt: "Person wearing a VR headset during a therapy exercise",
         description:
           "In a supportive virtual environment, you can prepare for and practise challenging situations at your own pace.",
@@ -219,7 +219,7 @@ const content = {
     services: [
       {
         title: "Ejercicios con realidad virtual",
-        image: "/services/virtual-reality.jpg",
+        image: "/services/virtual-reality.webp",
         imageAlt: "Persona con gafas de realidad virtual durante un ejercicio terapéutico",
         description:
           "En un entorno virtual seguro, puedes prepararte y practicar situaciones difíciles a tu ritmo.",
@@ -392,7 +392,7 @@ export default function HomeContent({
                     height={1030}
                     sizes="(max-width: 640px) calc(100vw - 44px), (max-width: 803px) calc(50vw - 32px), (max-width: 1039px) calc(33.333vw - 28px), 319px"
                     loading={
-                      service.image === "/services/virtual-reality.jpg"
+                      service.image === "/services/virtual-reality.webp"
                         ? "eager"
                         : undefined
                     }
