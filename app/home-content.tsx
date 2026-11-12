@@ -390,6 +390,7 @@ export default function HomeContent({
                     alt={service.imageAlt}
                     width={824}
                     height={1030}
+                    sizes="(max-width: 640px) calc(100vw - 44px), (max-width: 803px) calc(50vw - 32px), (max-width: 1039px) calc(33.333vw - 28px), 319px"
                     loading={
                       service.image === "/services/virtual-reality.jpg"
                         ? "eager"
