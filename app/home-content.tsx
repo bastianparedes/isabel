@@ -9,6 +9,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useState } from "react";
+import { getLocalizedTitle } from "./site-metadata";
 
 const LANGUAGE_COOKIE = "isabel-site-language";
 
@@ -307,6 +308,7 @@ export default function HomeContent({
       window.location.protocol === "https:" ? "; Secure" : ""
     }`;
     document.documentElement.lang = nextLanguage;
+    document.title = getLocalizedTitle(nextLanguage);
     setLanguage(nextLanguage);
   }
 
