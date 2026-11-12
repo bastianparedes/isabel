@@ -46,8 +46,11 @@
 }
 
 html {
+  height: 100%;
   scroll-padding-top: env(safe-area-inset-top, 0px);
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {

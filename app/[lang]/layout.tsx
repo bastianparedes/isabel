@@ -5,7 +5,6 @@ import {
   siteLanguages,
   siteUrl,
 } from "../site-metadata";
-import "../globals.css";
 import "../romantic.css";
 
 export const metadata: Metadata = {
@@ -31,7 +30,7 @@ export default async function LanguageLayout({
   }
 
   return (
-    <html lang={lang} className="h-full antialiased">
+    <html lang={lang}>
       <body>{children}</body>
     </html>
   );
